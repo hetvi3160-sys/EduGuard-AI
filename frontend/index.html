@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EduGuard AI — AI-powered Academic Dropout Prediction & Early Intervention System. Identify students at risk before they drop out.">
+    <title>EduGuard AI — Academic Dropout Prediction</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Animated Particle Canvas -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ============================================================ -->
+<!-- SIDEBAR -->
+<!-- ============================================================ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <span class="sidebar-logo">🎓</span>
+        <div>
+            <h2>EduGuard AI</h2>
+            <p class="sidebar-subtitle">Dropout Prediction</p>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <button class="nav-btn active" data-page="dashboard" onclick="switchPage('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-btn" data-page="predict" onclick="switchPage('predict')">
+            <span class="nav-icon">🔍</span> Predict Student
+        </button>
+        <button class="nav-btn" data-page="students" onclick="switchPage('students')">
+            <span class="nav-icon">👨‍🎓</span> All Students
+        </button>
+        <button class="nav-btn" data-page="explainable" onclick="switchPage('explainable')">
+            <span class="nav-icon">🧠</span> Explainable AI
+        </button>
+        <button class="nav-btn" data-page="interventions" onclick="switchPage('interventions')">
+            <span class="nav-icon">🛠</span> Interventions
+        </button>
+        <button class="nav-btn" data-page="upload" onclick="switchPage('upload')">
+            <span class="nav-icon">📁</span> Upload Dataset
+        </button>
+        <button class="nav-btn" data-page="about" onclick="switchPage('about')">
+            <span class="nav-icon">ℹ️</span> About
+        </button>
+        <button class="nav-btn" onclick="clearAllData()" style="margin-top: 10px; border: 1px solid rgba(239, 68, 68, 0.4); color: var(--red);">
+            <span class="nav-icon">🗑️</span> Clear All Data
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-clock" id="sidebar-clock"></div>
+        SIH 2026 • SDG 4
+    </div>
+</aside>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================================ -->
+<main class="main-content" id="mainContent">
+
+    <!-- Mobile toggle -->
+    <button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">☰</button>
+
+    <!-- Hero Banner -->
+    <div class="hero" id="heroSection">
+        <div class="hero-content">
+            <div class="hero-badge">AI-POWERED ANALYTICS</div>
+            <h1>🎓 EduGuard AI</h1>
+            <p>Next-Generation Academic Dropout Prediction & Early Intervention System</p>
+            <p class="hero-tagline">Identify students at risk before they drop out — powered by machine learning.</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="hero-stat-total">0</span>
+                    <span class="hero-stat-label">Students Analyzed</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="hero-stat-high">0</span>
+                    <span class="hero-stat-label">High-Risk Students</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value" id="hero-stat-interventions">0</span>
+                    <span class="hero-stat-label">Interventions Proposed</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: DASHBOARD -->
+    <!-- ============================================================ -->
+    <section class="page active" id="page-dashboard">
+        <div class="page-header">
+            <h2 class="page-title">
+                <span class="title-glow">📊</span> Dashboard
+                <span class="page-title-badge">LIVE</span>
+            </h2>
+            <span class="live-clock" id="live-clock"></span>
+        </div>
+
+        <!-- ===== EMPTY STATE (Immersive Welcome) ===== -->
+        <div id="dashboard-empty">
+            <!-- Welcome Splash -->
+            <div class="welcome-splash">
+                <div class="welcome-orbs">
+                    <div class="welcome-orb wo-1"></div>
+                    <div class="welcome-orb wo-2"></div>
+                    <div class="welcome-orb wo-3"></div>
+                    <div class="welcome-orb wo-4"></div>
+                </div>
+                <div class="welcome-content">
+                    <div class="welcome-icon-ring">
+                        <div class="welcome-icon-inner">🎓</div>
+                    </div>
+                    <h2 class="welcome-title">Welcome to EduGuard AI</h2>
+                    <p class="welcome-subtitle">Your intelligent academic early-warning system is ready.<br>Start by adding students to unlock powerful analytics.</p>
+                </div>
+            </div>
+
+            <!-- Quick Action Cards -->
+            <div class="quick-actions">
+                <div class="quick-action-card qa-predict" onclick="switchPage('predict')">
+                    <div class="qa-icon-wrap">
+                        <div class="qa-icon">🔍</div>
+                        <div class="qa-ring"></div>
+                    </div>
+                    <h3>Predict Student</h3>
+                    <p>Enter individual student data and get instant dropout risk analysis with AI-driven insights.</p>
+                    <span class="qa-arrow">→</span>
+                </div>
+                <div class="quick-action-card qa-upload" onclick="switchPage('upload')">
+                    <div class="qa-icon-wrap">
+                        <div class="qa-icon">📁</div>
+                        <div class="qa-ring"></div>
+                    </div>
+                    <h3>Upload Dataset</h3>
+                    <p>Batch-import a CSV file to analyze your entire class or department in one click.</p>
+                    <span class="qa-arrow">→</span>
+                </div>
+                <div class="quick-action-card qa-xai" onclick="switchPage('explainable')">
+                    <div class="qa-icon-wrap">
+                        <div class="qa-icon">🧠</div>
+                        <div class="qa-ring"></div>
+                    </div>
+                    <h3>Explore the Model</h3>
+                    <p>Discover how EduGuard's AI makes predictions — feature correlations, model weights, and more.</p>
+                    <span class="qa-arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Pipeline Feature Strip -->
+            <div class="feature-strip">
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-1"></span> Attendance Tracking</div>
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-2"></span> Academic Scoring</div>
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-3"></span> Assignment Monitoring</div>
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-4"></span> Participation Analysis</div>
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-5"></span> Socio-Economic Factors</div>
+                <div class="feature-strip-item"><span class="fsi-dot fsi-dot-6"></span> Backlog Detection</div>
+            </div>
+        </div>
+
+        <!-- ===== DATA STATE (Charts & Widgets) ===== -->
+        <div id="dashboard-content" style="display:none;">
+            <!-- Animated Metric Cards -->
+            <div class="metrics-grid" id="dashboard-metrics"></div>
+
+            <!-- Main 3D Visualization -->
+            <div class="card chart-card card-3d glow-card stagger-card draggable-widget" id="scatter3d-card">
+                <div class="drag-handle">⠿ Drag to rearrange</div>
+                <h3 class="card-title">🌐 3D Student Risk Space — Interactive Globe</h3>
+                <div id="chart-3d-scatter"></div>
+            </div>
+
+            <!-- 3D Charts Row -->
+            <div class="charts-row">
+                <div class="card chart-card card-3d glow-card stagger-card draggable-widget">
+                    <div class="drag-handle">⠿ Drag</div>
+                    <h3 class="card-title">🏗️ 3D Risk Distribution</h3>
+                    <div id="chart-risk-dist"></div>
+                </div>
+                <div class="card chart-card card-3d glow-card stagger-card draggable-widget">
+                    <div class="drag-handle">⠿ Drag</div>
+                    <h3 class="card-title">📈 3D Dropout Probability Landscape</h3>
+                    <div id="chart-prob-bar"></div>
+                </div>
+            </div>
+
+            <!-- Risk Surface -->
+            <div class="card chart-card card-3d glow-card stagger-card draggable-widget">
+                <div class="drag-handle">⠿ Drag</div>
+                <h3 class="card-title">🗺️ 3D Risk Surface Heatmap</h3>
+                <div id="chart-risk-surface"></div>
+            </div>
+
+            <!-- Radar & Funnel -->
+            <div class="charts-row">
+                <div class="card chart-card card-3d glow-card stagger-card draggable-widget">
+                    <div class="drag-handle">⠿ Drag</div>
+                    <h3 class="card-title">🎯 Risk Category Radar</h3>
+                    <div id="chart-risk-radar"></div>
+                </div>
+                <div class="card chart-card card-3d glow-card stagger-card draggable-widget">
+                    <div class="drag-handle">⠿ Drag</div>
+                    <h3 class="card-title">🔬 Feature Importance 3D Funnel</h3>
+                    <div id="chart-feature-funnel"></div>
+                </div>
+            </div>
+
+            <!-- High-risk table -->
+            <div class="card glow-card card-3d stagger-card draggable-widget">
+                <div class="drag-handle">⠿ Drag</div>
+                <h3 class="card-title">🚨 Students Requiring Immediate Attention</h3>
+                <div id="high-risk-table-container"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: PREDICT -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-predict">
+        <h2 class="page-title"><span class="title-glow">🔍</span> Predict Student Dropout Risk</h2>
+        <p class="page-desc">Enter the student's academic and engagement information.</p>
+
+        <form id="predict-form" class="predict-form" onsubmit="handlePredict(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inp-name">Student Name</label>
+                    <input type="text" id="inp-name" placeholder="e.g. Aarav Sharma" required>
+                </div>
+                <div class="form-group">
+                    <label for="inp-attendance">Attendance (%)</label>
+                    <input type="range" id="inp-attendance" min="0" max="100" value="75" oninput="updateSliderLabel(this)">
+                    <span class="slider-val" id="inp-attendance-val">75</span>
+                </div>
+                <div class="form-group">
+                    <label for="inp-academic">Academic Score (%)</label>
+                    <input type="range" id="inp-academic" min="0" max="100" value="60" oninput="updateSliderLabel(this)">
+                    <span class="slider-val" id="inp-academic-val">60</span>
+                </div>
+                <div class="form-group">
+                    <label for="inp-assignment">Assignment Completion (%)</label>
+                    <input type="range" id="inp-assignment" min="0" max="100" value="60" oninput="updateSliderLabel(this)">
+                    <span class="slider-val" id="inp-assignment-val">60</span>
+                </div>
+                <div class="form-group">
+                    <label for="inp-participation">Participation (0-10)</label>
+                    <input type="range" id="inp-participation" min="0" max="10" value="5" oninput="updateSliderLabel(this)">
+                    <span class="slider-val" id="inp-participation-val">5</span>
+                </div>
+                <div class="form-group">
+                    <label for="inp-socio">Socio-Economic Status (0–1)</label>
+                    <input type="range" id="inp-socio" min="0" max="1" step="0.05" value="0.5" oninput="updateSliderLabel(this)">
+                    <span class="slider-val" id="inp-socio-val">0.50</span>
+                </div>
+                <div class="form-group">
+                    <label for="inp-backlogs">Number of Backlogs</label>
+                    <input type="number" id="inp-backlogs" min="0" max="20" value="0">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary btn-glow" id="predict-btn">
+                🚀 Predict Dropout Risk
+            </button>
+        </form>
+
+        <!-- Prediction Results -->
+        <div id="predict-results" style="display:none;">
+            <div class="divider"></div>
+            <div class="metrics-grid" id="predict-metrics"></div>
+            <h3 class="section-title">📌 Student Profile</h3>
+            <div class="card card-3d" id="student-profile-table"></div>
+            <h3 class="section-title">📊 3D Visual Breakdown</h3>
+            <div class="charts-row">
+                <div class="card chart-card card-3d glow-card">
+                    <h4>3D Risk Gauge</h4>
+                    <div id="chart-risk-pie"></div>
+                </div>
+                <div class="card chart-card card-3d glow-card">
+                    <h4>3D Feature Radar</h4>
+                    <div id="chart-feature-bar"></div>
+                </div>
+            </div>
+            <h3 class="section-title">🛠 Recommended Interventions</h3>
+            <div id="predict-interventions"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: ALL STUDENTS -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-students">
+        <h2 class="page-title"><span class="title-glow">👨‍🎓</span> All Students</h2>
+        <div id="students-empty" class="empty-state">
+            <div class="empty-icon floating">📭</div>
+            <h3>No students yet</h3>
+            <p>Go to <strong>Predict Student</strong> or <strong>Upload Dataset</strong> to add data.</p>
+        </div>
+        <div id="students-content" style="display:none;">
+            <div class="card card-3d">
+                <div class="table-wrapper" id="all-students-table"></div>
+            </div>
+            <button class="btn-secondary" onclick="downloadStudentReport()">⬇️ Download Student Report</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: EXPLAINABLE AI -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-explainable">
+        <h2 class="page-title"><span class="title-glow">🧠</span> Explainable AI</h2>
+        <p class="page-desc">EduGuard uses Pearson correlation to understand which features have the strongest relationship with historical dropout labels.</p>
+        <div class="card card-3d" id="correlation-table"></div>
+        <div class="card chart-card card-3d glow-card">
+            <h3 class="card-title">3D Feature Correlation Landscape</h3>
+            <div id="chart-correlation"></div>
+        </div>
+        <div class="info-box">
+            Positive correlation indicates a feature tends to increase with dropout in this training data. Negative correlation indicates a protective relationship.
+        </div>
+        <h3 class="section-title">⚙️ Model Weights — 3D Visualization</h3>
+        <div class="card card-3d glow-card" id="weights-table"></div>
+        <div class="card chart-card card-3d glow-card">
+            <h3 class="card-title">🧬 3D Model Weight Surface</h3>
+            <div id="chart-weights-3d"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: INTERVENTIONS -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-interventions">
+        <h2 class="page-title"><span class="title-glow">🛠</span> Intervention Center</h2>
+        <p class="page-desc">Students are assigned intervention recommendations according to weak indicators.</p>
+        <div id="interventions-empty" class="empty-state">
+            <div class="empty-icon floating">📭</div>
+            <h3>No students yet</h3>
+            <p>Go to <strong>Predict Student</strong> or <strong>Upload Dataset</strong> to add data.</p>
+        </div>
+        <div id="interventions-content"></div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: UPLOAD -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-upload">
+        <h2 class="page-title"><span class="title-glow">📁</span> Upload Student Dataset</h2>
+        <p class="page-desc">Upload a CSV file containing student information to batch-analyze and visualize risk.</p>
+        <div class="info-box">
+            Required columns: <code>Name, Attendance, Academic Score, Assignment Rate, Participation, Socio-Economic, Backlogs</code>
+        </div>
+
+        <div class="upload-zone" id="upload-zone"
+             ondragover="event.preventDefault(); this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="handleDrop(event)">
+            <div class="upload-icon floating">📄</div>
+            <p>Drag & Drop your CSV file here, or</p>
+            <label class="btn-secondary upload-label" for="csv-file">Browse Files</label>
+            <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleFileSelect(event)">
+            <p class="upload-hint" id="upload-filename">No file selected</p>
+        </div>
+
+        <button class="btn-primary btn-glow" id="upload-btn" onclick="handleUpload()" disabled>
+            📊 Analyze & Visualize Dataset
+        </button>
+
+        <div id="upload-results" style="display:none;">
+            <div class="divider"></div>
+            <div class="metrics-grid" id="upload-metrics"></div>
+            <div class="card chart-card card-3d glow-card">
+                <h3 class="card-title">🌐 Interactive 3D Risk Scatter Plot</h3>
+                <div id="chart-upload-3d"></div>
+            </div>
+            <h3 class="section-title">Detailed Prediction Results</h3>
+            <div class="card card-3d" id="upload-table"></div>
+            <button class="btn-secondary" onclick="downloadUploadResults()">⬇️ Download Results</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PAGE: ABOUT -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-about">
+        <h2 class="page-title"><span class="title-glow">ℹ️</span> About EduGuard AI</h2>
+        <div class="about-content">
+            <div class="card about-card card-3d">
+                <h3>🎓 EduGuard AI</h3>
+                <p>EduGuard is an early-warning system designed to identify students who may be at risk of academic dropout.</p>
+            </div>
+            <div class="card about-card card-3d">
+                <h3>🔗 Core Pipeline</h3>
+                <div class="pipeline-steps">
+                    <div class="pipeline-step"><div class="step-number">1</div><div><strong>Student Data</strong><br>Attendance, Academic Score, Assignment Rate, Participation, Socio-Economic Status, Backlogs</div></div>
+                    <div class="pipeline-step"><div class="step-number">2</div><div><strong>Feature Normalization</strong><br>Features are converted into a comparable 0–1 scale.</div></div>
+                    <div class="pipeline-step"><div class="step-number">3</div><div><strong>Logistic Regression</strong><br>A logistic regression model (with L2 regularization) predicts the probability of dropout.</div></div>
+                    <div class="pipeline-step"><div class="step-number">4</div><div><strong>Risk Classification</strong><br>LOW (&lt; 30%) • MEDIUM (30%–59%) • HIGH (≥ 60%)</div></div>
+                    <div class="pipeline-step"><div class="step-number">5</div><div><strong>Explainable AI</strong><br>Pearson correlation reveals relationships between features and historical dropout labels.</div></div>
+                    <div class="pipeline-step"><div class="step-number">6</div><div><strong>Intervention</strong><br>Attendance recovery, remedial classes, peer tutoring, engagement programs, financial aid, backlog clearance.</div></div>
+                </div>
+            </div>
+            <div class="card about-card card-3d">
+                <h3>🎯 Risk Classification Model</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Students are dynamically classified into three risk tiers based on their predicted dropout probability \(P(\text{Dropout})\):</p>
+                <div class="risk-class-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                    <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); border-left: 4px solid var(--green); border-radius: var(--radius-sm); padding: 16px;">
+                        <span class="risk-badge LOW" style="margin-bottom: 8px;">🟢 LOW RISK</span>
+                        <h4 style="font-size: 18px; margin: 6px 0; color: var(--green);">&lt; 30% Probability</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Student shows strong academic performance and active engagement. Standard routine monitoring recommended.</p>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-left: 4px solid var(--amber); border-radius: var(--radius-sm); padding: 16px;">
+                        <span class="risk-badge MEDIUM" style="margin-bottom: 8px;">🟠 MEDIUM RISK</span>
+                        <h4 style="font-size: 18px; margin: 6px 0; color: var(--amber);">30% – 59% Probability</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Student shows early warning signs (e.g. declining attendance or assignment drops). Advisory counselor check-in recommended.</p>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-left: 4px solid var(--red); border-radius: var(--radius-sm); padding: 16px;">
+                        <span class="risk-badge HIGH" style="margin-bottom: 8px;">🔴 HIGH RISK</span>
+                        <h4 style="font-size: 18px; margin: 6px 0; color: var(--red);">≥ 60% Probability</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Critical dropout risk detected. Immediate targeted intervention required (parent alerts, remedial camps, peer tutoring).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card about-card card-3d">
+                <h3>🛠 Technology Stack</h3>
+                <div class="tech-grid">
+                    <span class="tech-badge">Python</span>
+                    <span class="tech-badge">FastAPI</span>
+                    <span class="tech-badge">NumPy</span>
+                    <span class="tech-badge">Pandas</span>
+                    <span class="tech-badge">Plotly.js 3D</span>
+                    <span class="tech-badge">Vanilla JS</span>
+                    <span class="tech-badge">CSS3 Animations</span>
+                    <span class="tech-badge">Logistic Regression</span>
+                    <span class="tech-badge">Pearson Correlation</span>
+                    <span class="tech-badge">WebGL 3D Rendering</span>
+                </div>
+            </div>
+            <div class="card about-card sih-card card-3d">
+                <h3>🏛 SIH / SDG</h3>
+                <p><strong>SIH 2026</strong> &nbsp;|&nbsp; <strong>SDG 4 — Quality Education</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        EduGuard AI • Academic Dropout Prediction & Early Intervention<br>
+        SIH 2026 • SDG 4 — Quality Education
+    </footer>
+</main>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
